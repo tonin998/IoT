@@ -1,0 +1,32 @@
+public static ThingSpeak.ChannelData.RootObject FetchThingSpeakData(string ChannelNo, string APIKey)
+            {
+
+                string url = "http://api.thingspeak.com/channels/";
+                StringBuilder sb = new StringBuilder();
+
+                sb.Append(url + ChannelNo + "/feed.json?key=" + APIKey);
+
+                string requestUrl = sb.ToString();
+                try
+                {
+                    HttpWebRequest request = WebRequest.Create(requestUrl) as HttpWebRequest;
+                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                    {
+                        if (response.StatusCode != HttpStatusCode.OK)
+                            throw new Exception(String.Format(
+                            "Server error (HTTP {0}: {1}).",
+                            response.StatusCode,
+                            response.StatusDescription));
+                        DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(ThingSpeak.ChannelData.RootObject));
+                        object objResponse = jsonSerializer.ReadObject(response.GetResponseStream());
+                        ThingSpeak.ChannelData.RootObject jsonResponse = objResponse as ThingSpeak.ChannelData.RootObject;
+                        return jsonResponse;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return null;
+                }
+
+            }
