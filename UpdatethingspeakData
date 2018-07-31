@@ -1,0 +1,54 @@
+string UpdateThingSpeakData( string []fields,string APIKey)
+      {
+      string url = "http://api.thingspeak.com/";
+      StringBuilder sb = new StringBuilder();
+      if (fields.Length > 8)
+      {
+          throw (new Exception("Can't Handle More than 8 Parameters"));
+      }
+      sb.Append(url + "update?key=" + APIKey);
+
+      for (int i = 0; i < fields.Length; i++)
+      {
+          sb.Append("&field"+(i+1)+"=" + HttpUtility.UrlEncode(fields[i]));
+
+      }
+      string QueryString = sb.ToString();
+          StringBuilder sbResponse = new StringBuilder();
+          byte[] buf = new byte[8192];
+
+          // Hit the URL with the querystring and put the response in webResponse
+          HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(QueryString);
+          HttpWebResponse webResponse = (HttpWebResponse)myRequest.GetResponse();
+          try
+          {
+              Stream myResponse = webResponse.GetResponseStream();
+
+              int count = 0;
+
+              // Read the response buffer and return
+              do
+              {
+                  count = myResponse.Read(buf, 0, buf.Length);
+                  if (count != 0)
+                  {
+                      sbResponse.Append(Encoding.ASCII.GetString(buf, 0, count));
+                  }
+              }
+              while (count > 0);
+              return sbResponse.ToString();
+          }
+          catch (WebException ex)
+          {
+              return "0";
+          }
+
+      }
+      try
+            {
+                //string s = UpdateThingSpeakData(new string[] { "40", "40" }, "C606GJW98AWMN9P9");
+                string s = UpdateThingSpeakData(new string[] { "40", "40}, "C606GJW98AWMN9P9");
+            }
+            catch
+            {
+            }
